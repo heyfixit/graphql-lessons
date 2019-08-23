@@ -1,20 +1,39 @@
 import { GraphQLServer } from 'graphql-yoga';
 
+// Possible Types
+// 5 Scalar Types - Type that stores a single value
+// String, Boolean, Int, Float, ID
+// as opposed to Collections - Objects and Arrays
+
 // Type Definitions AKA Application Schema
 const typeDefs = `
   type Query {
-    hello: String!,
-    hello2: String!
+    id: ID!
+    name: String!
+    age: Int!
+    employed: Boolean!
+    gpa: Float
   }
 `;
 
 // Resolvers
 const resolvers = {
   Query: {
-    hello() {
-      return 'This is my first query!';
+    id() {
+      return 'abc123';
     },
-    hello2: () => 'This is my second query!'
+    name() {
+      return 'Dude';
+    },
+    age() {
+      return 27;
+    },
+    employed() {
+      return true;
+    },
+    gpa() {
+      return 300.5;
+    }
   }
 };
 
