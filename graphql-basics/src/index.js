@@ -8,31 +8,36 @@ import { GraphQLServer } from 'graphql-yoga';
 // Type Definitions AKA Application Schema
 const typeDefs = `
   type Query {
+    me: User!
+    post: Post!
+    greeting(name: String): String!
+  }
+
+  type User {
     id: ID!
     name: String!
-    age: Int!
-    employed: Boolean!
-    gpa: Float
+    email: String!
+    age: Int
+  }
+
+  type Post {
+    id: ID!
+    body: String!
+    published: Boolean!
   }
 `;
 
 // Resolvers
 const resolvers = {
   Query: {
-    id() {
-      return 'abc123';
-    },
-    name() {
-      return 'Dude';
-    },
-    age() {
-      return 27;
-    },
-    employed() {
-      return true;
-    },
-    gpa() {
-      return 300.5;
+    me: () => ({ id: 'abc123', name: 'Test', email: 'test@test.com', age: 23 }),
+    post: () => ({ id: 'abc123', body: 'Test', published: true }),
+    greeting(parent, args, ctx, info) {
+      if (args.name) {
+        return `Hello ${args.name}`
+      }
+
+      return 'Hello';
     }
   }
 };
