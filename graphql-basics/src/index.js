@@ -8,35 +8,35 @@ import uuidv4 from 'uuid/v4';
 
 // Dummy User Data
 const users = [
-  { id: 1, name: 'User1', email: 'user1@email.com', age: 50 },
-  { id: 2, name: 'User2', email: 'user2@email.com', age: 50 },
-  { id: 3, name: 'User3', email: 'user3@email.com', age: 50 }
+  { id: "1", name: 'User1', email: 'user1@email.com', age: 50 },
+  { id: "2", name: 'User2', email: 'user2@email.com', age: 50 },
+  { id: "3", name: 'User3', email: 'user3@email.com', age: 50 }
 ];
 
 const posts = [
   {
-    id: 1,
+    id: "1",
     title: 'Post1 Title',
     body: 'Post1 Body',
     published: true,
     author: 1
   },
   {
-    id: 2,
+    id: "2",
     title: 'Post2 Title',
     body: 'Post2 Body',
     published: true,
     author: 1
   },
   {
-    id: 3,
+    id: "3",
     title: 'Post3 Title',
     body: 'Post3 Body',
     published: true,
     author: 3
   },
   {
-    id: 4,
+    id: "4",
     title: 'Post4 Title',
     body: 'Post4 Body',
     published: true,
@@ -45,10 +45,10 @@ const posts = [
 ];
 
 const comments = [
-  { id: 1, text: 'Comment 1', author: 1, post: 1 },
-  { id: 2, text: 'Comment 2', author: 1, post: 2 },
-  { id: 3, text: 'Comment 3', author: 3, post: 3 },
-  { id: 4, text: 'Comment 4', author: 2, post: 1 }
+  { id: "1", text: 'Comment 1', author: 1, post: 1 },
+  { id: "2", text: 'Comment 2', author: 1, post: 2 },
+  { id: "3", text: 'Comment 3', author: 3, post: 3 },
+  { id: "4", text: 'Comment 4', author: 2, post: 1 }
 ];
 
 // Type Definitions AKA Application Schema
@@ -63,6 +63,7 @@ const typeDefs = `
 
   type Mutation {
     createUser(name: String!, email: String!, age: Int): User!
+    createPost(title: String!, body: String!, published: Boolean!, author: ID!): Post!
   }
 
   type User {
@@ -104,6 +105,20 @@ const resolvers = {
       const newUser = { id: uuidv4(), email, age, name };
       users.push(newUser);
       return newUser;
+    },
+    createPost(parent, args, ctx, info) {
+      const { author, title, body, published } = args;
+      console.log(args)
+      const userExists = users.some(u => u.id === author);
+
+      if (!userExists) {
+        throw new Error('User does not exist.');
+      }
+
+      const newPost = { id: uuidv4(), title, body, published, author };
+      posts.push(newPost);
+
+      return newPost;
     }
   },
   Query: {
