@@ -1,4 +1,5 @@
 import { GraphQLServer } from 'graphql-yoga';
+import uuidv4 from 'uuid/v4';
 
 // Possible Types
 // 5 Scalar Types - Type that stores a single value
@@ -60,6 +61,10 @@ const typeDefs = `
     comments: [Comment!]!
   }
 
+  type Mutation {
+    createUser(name: String!, email: String!, age: Int): User!
+  }
+
   type User {
     id: ID!
     name: String!
@@ -88,6 +93,19 @@ const typeDefs = `
 
 // Resolver Functions
 const resolvers = {
+  Mutation: {
+    createUser(parent, args, ctx, info) {
+      const { email, age, name } = args;
+      const emailTaken = users.some(u => u.email === email);
+      if (emailTaken) {
+        throw new Error('Email Taken.');
+      }
+
+      const newUser = { id: uuidv4(), email, age, name };
+      users.push(newUser);
+      return newUser;
+    }
+  },
   Query: {
     me: () => ({ id: 'abc123', name: 'Test', email: 'test@test.com', age: 23 }),
     post: () => ({ id: 'abc123', body: 'Test', published: true }),
