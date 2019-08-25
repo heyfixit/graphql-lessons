@@ -12,12 +12,44 @@ const users = [
   { id: 3, name: 'User3', email: 'user3@email.com', age: 50 }
 ];
 
+const posts = [
+  {
+    id: 1,
+    title: 'Post1 Title',
+    body: 'Post1 Body',
+    published: true,
+    author: 1
+  },
+  {
+    id: 2,
+    title: 'Post2 Title',
+    body: 'Post2 Body',
+    published: true,
+    author: 1
+  },
+  {
+    id: 3,
+    title: 'Post3 Title',
+    body: 'Post3 Body',
+    published: true,
+    author: 3
+  },
+  {
+    id: 4,
+    title: 'Post4 Title',
+    body: 'Post4 Body',
+    published: true,
+    author: 2
+  }
+];
+
 // Type Definitions AKA Application Schema
 const typeDefs = `
   type Query {
     me: User!
     post: Post!
     users(query: String): [User!]!
+    posts(query: String): [Post!]!
   }
 
   type User {
@@ -31,6 +63,8 @@ const typeDefs = `
     id: ID!
     body: String!
     published: Boolean!
+    title: String!
+    author: User!
   }
 `;
 
@@ -47,6 +81,25 @@ const resolvers = {
         );
       }
       return users;
+    },
+    posts(parent, args, ctx, info) {
+      const { query } = args;
+      if (query) {
+        return posts.filter(p => {
+          const titleMatch = p.title
+            .toLowerCase()
+            .includes(query.toLowerCase());
+          const bodyMatch = p.body.toLowerCase().includes(query.toLowerCase());
+          return titleMatch || bodyMatch;
+        });
+      }
+
+      return posts;
+    }
+  },
+  Post: {
+    author(parent, args, ctx, info) {
+      return users.find((u) => u.id === parent.author);
     }
   }
 };
