@@ -44,10 +44,10 @@ const posts = [
 ];
 
 const comments = [
-  { id: 1, text: 'Comment 1', author: 1 },
-  { id: 2, text: 'Comment 2', author: 1 },
-  { id: 3, text: 'Comment 3', author: 3 },
-  { id: 4, text: 'Comment 4', author: 2 }
+  { id: 1, text: 'Comment 1', author: 1, post: 1 },
+  { id: 2, text: 'Comment 2', author: 1, post: 2 },
+  { id: 3, text: 'Comment 3', author: 3, post: 3 },
+  { id: 4, text: 'Comment 4', author: 2, post: 1 }
 ];
 
 // Type Definitions AKA Application Schema
@@ -75,12 +75,14 @@ const typeDefs = `
     published: Boolean!
     title: String!
     author: User!
+    comments: [Comment!]!
   }
 
   type Comment {
     id: ID!
     text: String!
     author: User!
+    post: Post!
   }
 `;
 
@@ -119,6 +121,9 @@ const resolvers = {
   Post: {
     author(parent, args, ctx, info) {
       return users.find(u => u.id === parent.author);
+    },
+    comments(parent, args, ctx, info) {
+      return comments.filter(c => c.post === parent.id);
     }
   },
   User: {
@@ -132,6 +137,9 @@ const resolvers = {
   Comment: {
     author(parent, args, ctx, info) {
       return users.find(u => u.id === parent.author);
+    },
+    post(parent, args, ctx, info) {
+      return posts.find(p => p.id === parent.post);
     }
   }
 };
