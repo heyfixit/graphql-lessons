@@ -8,35 +8,35 @@ import uuidv4 from 'uuid/v4';
 
 // Dummy User Data
 const users = [
-  { id: "1", name: 'User1', email: 'user1@email.com', age: 50 },
-  { id: "2", name: 'User2', email: 'user2@email.com', age: 50 },
-  { id: "3", name: 'User3', email: 'user3@email.com', age: 50 }
+  { id: '1', name: 'User1', email: 'user1@email.com', age: 50 },
+  { id: '2', name: 'User2', email: 'user2@email.com', age: 50 },
+  { id: '3', name: 'User3', email: 'user3@email.com', age: 50 }
 ];
 
 const posts = [
   {
-    id: "1",
+    id: '1',
     title: 'Post1 Title',
     body: 'Post1 Body',
     published: true,
     author: 1
   },
   {
-    id: "2",
+    id: '2',
     title: 'Post2 Title',
     body: 'Post2 Body',
     published: true,
     author: 1
   },
   {
-    id: "3",
+    id: '3',
     title: 'Post3 Title',
     body: 'Post3 Body',
     published: true,
     author: 3
   },
   {
-    id: "4",
+    id: '4',
     title: 'Post4 Title',
     body: 'Post4 Body',
     published: true,
@@ -45,10 +45,10 @@ const posts = [
 ];
 
 const comments = [
-  { id: "1", text: 'Comment 1', author: 1, post: 1 },
-  { id: "2", text: 'Comment 2', author: 1, post: 2 },
-  { id: "3", text: 'Comment 3', author: 3, post: 3 },
-  { id: "4", text: 'Comment 4', author: 2, post: 1 }
+  { id: '1', text: 'Comment 1', author: 1, post: 1 },
+  { id: '2', text: 'Comment 2', author: 1, post: 2 },
+  { id: '3', text: 'Comment 3', author: 3, post: 3 },
+  { id: '4', text: 'Comment 4', author: 2, post: 1 }
 ];
 
 // Type Definitions AKA Application Schema
@@ -61,9 +61,29 @@ const typeDefs = `
     comments: [Comment!]!
   }
 
+  input CreateUserInput {
+    name: String!
+    email: String!
+    age: Int
+  }
+
+  input CreatePostInput {
+    title: String!
+    body: String!
+    published: Boolean!
+    author: ID!
+  }
+
+  input CreateCommentInput {
+    text: String!
+    author: ID!
+    post: ID!
+  }
+
   type Mutation {
-    createUser(name: String!, email: String!, age: Int): User!
-    createPost(title: String!, body: String!, published: Boolean!, author: ID!): Post!
+    createUser(data: CreateUserInput): User!
+    createPost(post: CreatePostInput): Post!
+    createComment(comment: CreateCommentInput): Comment!
   }
 
   type User {
@@ -96,7 +116,7 @@ const typeDefs = `
 const resolvers = {
   Mutation: {
     createUser(parent, args, ctx, info) {
-      const { email, age, name } = args;
+      const { email, age, name } = args.data;
       const emailTaken = users.some(u => u.email === email);
       if (emailTaken) {
         throw new Error('Email Taken.');
@@ -107,18 +127,26 @@ const resolvers = {
       return newUser;
     },
     createPost(parent, args, ctx, info) {
-      const { author, title, body, published } = args;
-      console.log(args)
-      const userExists = users.some(u => u.id === author);
+      const userExists = users.some(u => u.id === args.author);
 
       if (!userExists) {
         throw new Error('User does not exist.');
       }
 
-      const newPost = { id: uuidv4(), ...args};
+      const newPost = { id: uuidv4(), ...args.post };
       posts.push(newPost);
 
       return newPost;
+    },
+    createComment(parent, args, ctx, info) {
+      const userExists = users.some(u => u.id === args.comment.author);
+      if (!userExists) {
+        throw new Error('User does not exist.');
+      }
+
+      const newComment = { id: uuidv4(), ...args.comment };
+      comments.push(newComment);
+      return newComment;
     }
   },
   Query: {
@@ -164,7 +192,7 @@ const resolvers = {
       return posts.filter(p => p.author === parent.id);
     },
     comments(parent, args, ctx, info) {
-      return comments.filter(c => c.authoer === parent.id);
+      return comments.filter(c => c.author === parent.id);
     }
   },
   Comment: {
