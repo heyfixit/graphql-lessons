@@ -12,6 +12,34 @@ const Mutation = {
     db.users.push(newUser);
     return newUser;
   },
+  updateUser(parent, args, { db }, info) {
+    const { id, data } = args;
+    const user = db.users.find(u => u.id === args.id);
+
+    if (!user) {
+      throw new Error('User not found.');
+    }
+
+    if (typeof data.email === 'string') {
+      const emailTaken = db.users.some(u => u.email === data.email);
+
+      if (emailTaken) {
+        throw new Error('Email in use.');
+      }
+
+      user.email = data.email;
+    }
+
+    if (typeof data.name === 'string') {
+      user.name = data.name;
+    }
+
+    if (typeof data.age !== 'undefined') {
+      user.age = data.age;
+    }
+
+    return user;
+  },
   deleteUser(parent, args, { db }, info) {
     const userIndex = db.users.findIndex(u => u.id === args.id);
 
@@ -79,4 +107,4 @@ const Mutation = {
   }
 };
 
-export { Mutation as default }
+export { Mutation as default };
