@@ -86,6 +86,7 @@ const typeDefs = `
     createComment(comment: CreateCommentInput): Comment!
     deleteUser(id: ID!): User!
     deletePost(id: ID!): Post!
+    deleteComment(id: ID!): Comment!
   }
 
   type User {
@@ -182,6 +183,16 @@ const resolvers = {
       const newComment = { id: uuidv4(), ...args.comment };
       comments.push(newComment);
       return newComment;
+    },
+    deleteComment(parent, args, ctx, info) {
+      const commentIndex = comments.findIndex(c => c.id == args.id);
+      if (commentIndex === -1) {
+        throw new Error('Comment not found.');
+      }
+
+      const foundComment = comments[commentIndex];
+      comments.splice(commentIndex, 1);
+      return foundComment;
     }
   },
   Query: {
