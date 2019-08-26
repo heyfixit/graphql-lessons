@@ -12,6 +12,34 @@ const Mutation = {
     db.users.push(newUser);
     return newUser;
   },
+  updateUser(parent, args, { db }, info) {
+    const { id, data } = args;
+    const user = db.users.find(u => u.id === args.id);
+
+    if (!user) {
+      throw new Error('User not found.');
+    }
+
+    if (typeof data.email === 'string') {
+      const emailTaken = db.users.some(u => u.email === data.email);
+
+      if (emailTaken) {
+        throw new Error('Email in use.');
+      }
+
+      user.email = data.email;
+    }
+
+    if (typeof data.name === 'string') {
+      user.name = data.name;
+    }
+
+    if (typeof data.age !== 'undefined') {
+      user.age = data.age;
+    }
+
+    return user;
+  },
   deleteUser(parent, args, { db }, info) {
     const userIndex = db.users.findIndex(u => u.id === args.id);
 
@@ -57,6 +85,28 @@ const Mutation = {
     db.posts.splice(postIndex, 1);
     return foundPost;
   },
+  updatePost(parent, args, { db }, info) {
+    const { id, data } = args;
+    const post = db.posts.find(p => p.id === id);
+
+    if (!post) {
+      throw new Error('Post not found.');
+    }
+
+    if (typeof data.title === 'string') {
+      post.title = data.title;
+    }
+
+    if (typeof data.body === 'string') {
+      post.body = data.body;
+    }
+
+    if (typeof data.published === 'boolean') {
+      post.published = data.published;
+    }
+
+    return post;
+  },
   createComment(parent, args, { db }, info) {
     const userExists = db.users.some(u => u.id === args.comment.author);
     if (!userExists) {
@@ -66,6 +116,19 @@ const Mutation = {
     const newComment = { id: uuidv4(), ...args.comment };
     db.comments.push(newComment);
     return newComment;
+  },
+  updateComment(parent, args, { db }, info) {
+    const { id, data } = args;
+    const comment = db.comments.find(c => c.id === id);
+    if (!comment) {
+      throw new Error('Comment not found.');
+    }
+
+    if (typeof data.text === 'string') {
+      comment.text = data.text;
+    }
+
+    return comment;
   },
   deleteComment(parent, args, { db }, info) {
     const commentIndex = db.comments.findIndex(c => c.id == args.id);
@@ -79,4 +142,4 @@ const Mutation = {
   }
 };
 
-export { Mutation as default }
+export { Mutation as default };
