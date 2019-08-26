@@ -7,48 +7,48 @@ import uuidv4 from 'uuid/v4';
 // as opposed to Collections - Objects and Arrays
 
 // Dummy User Data
-const users = [
+let users = [
   { id: '1', name: 'User1', email: 'user1@email.com', age: 50 },
   { id: '2', name: 'User2', email: 'user2@email.com', age: 50 },
   { id: '3', name: 'User3', email: 'user3@email.com', age: 50 }
 ];
 
-const posts = [
+let posts = [
   {
     id: '1',
     title: 'Post1 Title',
     body: 'Post1 Body',
     published: true,
-    author: 1
+    author: '1'
   },
   {
     id: '2',
     title: 'Post2 Title',
     body: 'Post2 Body',
     published: true,
-    author: 1
+    author: '1'
   },
   {
     id: '3',
     title: 'Post3 Title',
     body: 'Post3 Body',
     published: true,
-    author: 3
+    author: '3'
   },
   {
     id: '4',
     title: 'Post4 Title',
     body: 'Post4 Body',
     published: true,
-    author: 2
+    author: '2'
   }
 ];
 
-const comments = [
-  { id: '1', text: 'Comment 1', author: 1, post: 1 },
-  { id: '2', text: 'Comment 2', author: 1, post: 2 },
-  { id: '3', text: 'Comment 3', author: 3, post: 3 },
-  { id: '4', text: 'Comment 4', author: 2, post: 1 }
+let comments = [
+  { id: '1', text: 'Comment 1', author: '1', post: '1' },
+  { id: '2', text: 'Comment 2', author: '1', post: '2' },
+  { id: '3', text: 'Comment 3', author: '3', post: '3' },
+  { id: '4', text: 'Comment 4', author: '2', post: '1' }
 ];
 
 // Type Definitions AKA Application Schema
@@ -84,6 +84,8 @@ const typeDefs = `
     createUser(data: CreateUserInput): User!
     createPost(post: CreatePostInput): Post!
     createComment(comment: CreateCommentInput): Comment!
+    deleteUser(id: ID!): User!
+    deletePost(id: ID!): Post!
   }
 
   type User {
@@ -126,6 +128,25 @@ const resolvers = {
       users.push(newUser);
       return newUser;
     },
+    deleteUser(parent, args, ctx, info) {
+      const userIndex = users.findIndex(u => u.id === args.id);
+
+      if (userIndex === -1) {
+        throw new Error('User not found.');
+      }
+
+      posts = posts.filter(p => {
+        const match = p.author === args.id;
+        if (match) {
+          comments = comments.filter(c => c.post !== p.id);
+        }
+        return !match;
+      });
+      comments = comments.filter(c => c.author !== args.id);
+      const foundUser = users[userIndex];
+      users.splice(userIndex, 1);
+      return foundUser;
+    },
     createPost(parent, args, ctx, info) {
       const userExists = users.some(u => u.id === args.author);
 
@@ -137,6 +158,20 @@ const resolvers = {
       posts.push(newPost);
 
       return newPost;
+    },
+    deletePost(parent, args, ctx, info) {
+      const postIndex = posts.findIndex(p => p.id === args.id);
+      if (postIndex === -1) {
+        throw new Error('Post not found.');
+      }
+
+      // remove comments associated to this post
+      comments = comments.filter(c => c.post !== args.id);
+
+      // remove post
+      const foundPost = posts[postIndex];
+      posts.splice(postIndex, 1);
+      return foundPost;
     },
     createComment(parent, args, ctx, info) {
       const userExists = users.some(u => u.id === args.comment.author);
