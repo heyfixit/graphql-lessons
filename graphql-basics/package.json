@@ -10,7 +10,7 @@
     "nodemon": "^1.19.1"
   },
   "scripts": {
-    "start": "nodemon src/index.js --exec babel-node"
+    "start": "nodemon src/index.js --ext js,graphql --exec babel-node"
   },
   "name": "graphql-basics",
   "version": "1.0.0",
