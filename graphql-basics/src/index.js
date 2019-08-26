@@ -115,7 +115,7 @@ const resolvers = {
         throw new Error('User does not exist.');
       }
 
-      const newPost = { id: uuidv4(), title, body, published, author };
+      const newPost = { id: uuidv4(), ...args};
       posts.push(newPost);
 
       return newPost;
