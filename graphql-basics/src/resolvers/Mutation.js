@@ -59,15 +59,18 @@ const Mutation = {
     db.users.splice(userIndex, 1);
     return foundUser;
   },
-  createPost(parent, args, { db }, info) {
-    const userExists = db.users.some(u => u.id === args.author);
+  createPost(parent, args, { db, pubsub }, info) {
+    const userExists = db.users.some(u => u.id === args.data.author);
 
     if (!userExists) {
       throw new Error('User does not exist.');
     }
 
-    const newPost = { id: uuidv4(), ...args.post };
+    const newPost = { id: uuidv4(), ...args.data };
     db.posts.push(newPost);
+    if (newPost.published) {
+      pubsub.publish('post', { post: newPost });
+    }
 
     return newPost;
   },
@@ -115,7 +118,7 @@ const Mutation = {
 
     const newComment = { id: uuidv4(), ...args.comment };
     db.comments.push(newComment);
-    pubsub.publish(`comment ${args.comment.post}`, { comment: newComment })
+    pubsub.publish(`comment ${args.comment.post}`, { comment: newComment });
     return newComment;
   },
   updateComment(parent, args, { db }, info) {
