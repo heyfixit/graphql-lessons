@@ -20,23 +20,23 @@ const Mutation = {
           title: args.data.title,
           body: args.data.body,
           published: args.data.published,
-          author: { connect: { id: args.data.id } }
+          author: { connect: { id: args.data.author } }
         }
       },
       info
     );
   },
   async deletePost(parent, args, { prisma }, info) {
-    return prisma.mutation.deletePost({ where: args.id }, info);
+    return prisma.mutation.deletePost({ where: { id: args.id } }, info);
   },
   async updatePost(parent, args, { prisma }, info) {
     return prisma.mutation.updatePost(
-      { where: args.id, data: args.data },
+      { where: { id: args.id }, data: args.data },
       info
     );
   },
   async createComment(parent, args, { prisma }, info) {
-    return prisma.mutation.createPost(
+    return prisma.mutation.createComment(
       {
         data: {
           text: args.data.text,
@@ -48,14 +48,14 @@ const Mutation = {
     );
   },
   async updateComment(parent, args, { prisma }, info) {
-    return prisma.mutation.updatePost(
-      { where: args.id, data: args.data },
+    return prisma.mutation.updateComment(
+      { where: { id: args.id }, data: args.data },
       info
     );
   },
   async deleteComment(parent, args, { prisma }, info) {
     return prisma.mutation.deleteComment(
-      { where: args.id, data: args.data },
+      { where: { id: args.id }, data: args.data },
       info
     );
   }
